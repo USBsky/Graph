@@ -14,37 +14,42 @@
 #include <cstdio>
 #include <cstring>
 
-class MST {
+class MST
+{
 private:
-    int G[maxN][maxN], dis[maxN], par[maxN], vis[maxN];
+    int Grape[maxN][maxN], d[maxN], p[maxN], n;
+    bool vis[maxN];
 public:
-    void prim(int cnt)
+    void Prim(int n)
     {
-        mem(dis, inf);
-        mem(par, 0);
-        mem(vis, 0);
-        int p = 0;
-        vis[0] = 1;
-        For(i, 0, cnt)
+        mem(d, inf);//初始距离为无穷
+        mem(d, -1);
+        d[1] = 0;
+        For(k, 0, n - 1)
         {
-            dis[i] = G[0][i];
-        }
-        For(i, 0, cnt - 1)
-        {
-            int mrk = inf, point;
-            For(j, 0, cnt)
+            int cnt = inf, u;//寻找T 与V - T之间的最短距离
+            for (int i = 1; i <= n; ++i)
             {
-                if (G[p][j] < mrk)
+                if (!vis[i] && d[i] < cnt)
                 {
-                    mrk = G[p][j];
-                    point = j;
+                    cnt = d[i];
+                    u = i;
                 }
-                vis[point] = 1;
-                p = point;
             }
-        }
+            if (cnt == inf)
+                break;//已经完成
+            vis[u] = true;//访问u节点
+            //更新d
+            for (int v = 1; v <= n; ++v)
+            {
+                if (!vis[v] && d[v] > Grape[u][v] && Grape[u][v] != -1)//如果节点未被访问且更新且存在边
+                {
+                    d[v] = Grape[u][v];
+                    p[v] = u;
+                }
+            }
     }
 };
 
 
-#endif //GRAPH_MST_H
+;#endif //GRAPH_MST_H

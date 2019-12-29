@@ -13,95 +13,95 @@
 #include <cstdio>
 #include <cstring>
 #include <queue>
+#include <cstdlib>
 
 using namespace std;
 
-class Graph {
+class Graph
+{
 private:
-    class ArcNode {
+    class ArcNode
+    {
     public:
         int num, weight;
         struct ArcNode *nextArc;
 
-        ArcNode(int num, int weight) : num(num), weight(weight) {}
+        ArcNode(int num, int weight) : num(num), weight(weight)
+        {
+        }
     };
 
-    class Vnode {
+    class Vnode
+    {
     public:
-        int num, cnt = 0;
-        ArcNode *firstArc;
+        int cnt = 0, num;
+        ArcNode *firstArc = nullptr;
     };
 
-    Vnode graph[maxN];
+    Vnode *graph;
     int vis[maxN];
     int vexNum, arcNum;
 public:
-    Graph(int vexNum, int arcNum) : vexNum(vexNum), arcNum(arcNum)
+    Graph(const int vexNum, const int arcNum) : vexNum(vexNum), arcNum(arcNum)
     {
-        mem(graph, 0);
+        graph = (Vnode *) malloc(sizeof(Vnode) * (vexNum + 5) );
         int tot = 0;
-        For(i, 0, vexNum)
+        For(i, 0, arcNum)
         {
-            int cnt;                                                                                                    //当前节点的边数
-            scanf("%d", &cnt);
-            tot += cnt;
-            graph[i].num = i;
-            graph[i].cnt = cnt;
-            ArcNode *p;
-            For(j, 0, cnt)
+            int u, v, edge;
+            scanf("%d%d%d", &u, &v, &edge);
+            graph[u].num = u, graph[v].num = v;
+
+            for (int i : {u, v})
             {
-                int num, weight;
-                if (j == 0)
-                {
-                    scanf("%d%d", &num, &weight);
-                    p = new ArcNode(num, weight);
-                    graph[i].firstArc = p;
-                    p = graph[i].firstArc;
-                }
-                scanf("%d%d", &num, &weight);
-                p->nextArc = new ArcNode(num, weight);
-                p = p->nextArc;
+                graph[i].cnt++;
+                ArcNode *p = new ArcNode(i == u ? v : u, edge);
+                p->nextArc = graph[i].firstArc;
+                graph[i].firstArc = p;
             }
         }
-        if (this->arcNum != tot)
-            throw -1;
     }
 
     void dfs(int num)
     {
-        mem(vis, 0);
+        if (vis[num] == 1)
+            return;
+        vis[num] = 1;
+        printf("the num is %d\n", num);
         int cnt = graph[num].cnt;
         ArcNode *p = graph[num].firstArc;
-        For(i, 0, cnt)
+        while(p->nextArc != nullptr)
         {
-            if (vis[p->num] == 1)
-                continue;
-            vis[p->num] = 1;
-            printf("the num is %d, the weight is %d\n", p->num, p->weight);
-            p = p->nextArc;
             dfs(p->num);
+            p = p->nextArc;
         }
+    }
+
+    Graph* bfsInit()
+    {
+        mem(vis, 0);
+        return this;
     }
 
     void bfs(int num)
     {
         mem(vis, 0);
-        queue<ArcNode*> q;
-        q.push(graph[num].firstArc);
+        queue<Vnode> q;
+        q.push(graph[num]);
         while (!q.empty())
         {
-            ArcNode *p = q.front();
-            if (vis[p->num] == 1)
+            Vnode f = q.front();
+            if (vis[f.num] == 1)
             {
                 q.pop();
                 continue;
             }
-            vis[p->num] = 1;
-            printf("the num is %d, the weight is %d\n", p->num, p->weight);
-            int cnt = graph[p->num].cnt;
-            For(i, 0, cnt)
+            vis[f.num] = 1;
+            printf("%d\n", f.num);
+            ArcNode *p = f.firstArc;
+            while (p != nullptr)
             {
-                q.push(p->nextArc);
+                q.push(graph[p->num]);
                 p = p->nextArc;
             }
             q.pop();
